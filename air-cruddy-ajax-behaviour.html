@@ -28,7 +28,6 @@
         },
 
 
-
         // --- Service Instantiation
         // --- ---------------------------
         _createIronAjax: function (type, verb) {
@@ -55,17 +54,39 @@
 
         // --- Required Api
         // --- ---------------------------
-        _entityGetUrl: function () {
-            return this.endpoint + '/' + this.entityId;
+        _entityGetBaseUrl: function (opt) {
+            var endpointUrl = this.endpoint;
+            return endpointUrl;
         },
-        _entityUrlCreate: function () {
+
+
+        _entityGetUrl: function (opt, ver) {
+            var entityId, version;
+            if (typeof opt === 'string') {
+                entityId = opt;
+                version = ver;
+            } else { // Opt is JSON
+                entityId = opt._id || opt.id;
+                version = opt._version || opt.version;
+            }
+            var endpointUrl = this._entityGetBaseUrl(opt);
+            if (entityId) {
+                endpointUrl += '/' + entityId;
+            }
+            if (version) {
+                endpointUrl += '?version=' + version;
+            }
+           // console.log('Ajax get Url', endpointUrl);
+            return endpointUrl;
+        },
+        _entityUrlCreate: function (data) {
             return this.endpoint;
         },
-        _entityUrlUpdate: function () {
-            return this._entityGetUrl();
+        _entityUrlUpdate: function (data, ver) {
+            return this._entityGetUrl(data, ver);
         },
-        _entityUrlDelete: function () {
-            return this._entityGetUrl();
+        _entityUrlDelete: function (data, ver) {
+            return this._entityGetUrl(data, ver);
         },
 
         _serializeDataCreate: function (data) {
@@ -92,12 +113,12 @@
         _convertAjaxError: function (event) {
 //            console.error('Error : ', event.detail);
 //            console.error('Error request : ', event.detail.request.xhr);
-            var error =  this._convertAjaxContentAsJson(event.detail.error);
+            var error = this._convertAjaxContentAsJson(event.detail.error);
             // Status
-            var xhrRes = event.detail.request.xhr.response;
-            var status = xhrRes.statusCode;
-            var statusText = xhrRes.response;
-            var detail =  {
+            var xhrRes = event.detail.request.xhr;
+            var status = xhrRes.status;
+            var statusText = xhrRes.statusText;
+            var detail = {
                 error: error,
                 status: status,
                 statusText: statusText
@@ -108,10 +129,10 @@
         _convertAjaxResponse: function (event) {
             var response = this._convertAjaxContentAsJson(event.detail.response);
             // Status
-            var xhrRes = event.detail.request.xhr.response;
-            var status = xhrRes.statusCode; /// detail.xhr.status;
-            var statusText = xhrRes.response;//detail.xhr.statusText;
-            var detail =  {
+            var xhrRes = event.detail.xhr;
+            var status = xhrRes.status;
+            var statusText = xhrRes.statusText;
+            var detail = {
                 response: response,
                 status: status,
                 statusText: statusText
@@ -123,7 +144,7 @@
         _convertAjaxResponseGet: function (event) {
             var detail = this._convertAjaxResponse(event);
             // Convert Data Format to a common format
-            var data = this._deserializeDataGet( detail.response);
+            var data = this._deserializeDataGet(detail.response);
             detail.response = data;
             return detail;
         },
@@ -150,6 +171,7 @@
          * Called to request the get the entity from server.
          */
         _entityGet: function (data) {
+
             this._requestGet.url = this._entityGetUrl(data);
             this._requestGet.generateRequest();
         },
@@ -158,10 +180,11 @@
             //console.error('Required Api implementation for function : [%s]', '_handleResponseGet');
             var detail = this._convertAjaxResponseGet(event);
             // Fire Event
+            console.log('Fire Event air-cruddy-response-get', detail);
             this.fire('air-cruddy-response-get', detail);
         },
         _handleErrorGet: function (event, detail) {
-           // console.error('Required Api implementation for function : [%s]', '_handleErrorGet');
+            // console.error('Required Api implementation for function : [%s]', '_handleErrorGet');
             var detail = this._convertAjaxError(event);
             // Fire Event
             this.fire('air-cruddy-error-get', detail);
@@ -254,23 +277,23 @@
     Polymer.AirCruddyAjaxRestApiBehavior = {
         // --- Entity Url Apis
         // --- ---------------------------
-        _entityGetBaseUrl: function (opt) {
-            var endpointUrl = this.endpoint;
-            return endpointUrl;
-        },
-
-        _entityGetUrl: function (opt) {
-            var entityId = this.entityId;
-            var version = opt.version;
-            var endpointUrl = this._entityGetBaseUrl(opt);
-            if (entityId) {
-                endpointUrl += '/' + entityId;
-            }
-            if (version) {
-                endpointUrl += '?version=' + version;
-            }
-            return endpointUrl;
-        },
+//        _entityGetBaseUrl: function (opt) {
+//            var endpointUrl = this.endpoint;
+//            return endpointUrl;
+//        },
+//
+//        _entityGetUrl: function (opt) {
+//            var entityId = this.entityId;
+//            var version = opt.version;
+//            var endpointUrl = this._entityGetBaseUrl(opt);
+//            if (entityId) {
+//                endpointUrl += '/' + entityId;
+//            }
+//            if (version) {
+//                endpointUrl += '?version=' + version;
+//            }
+//            return endpointUrl;
+//        },
 
         _entityUrlCreate: function (data) {
             var endpointUrl = this._entityGetBaseUrl(opt);
