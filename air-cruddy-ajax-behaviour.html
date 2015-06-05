@@ -1,0 +1,316 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<script>
+
+    /**
+     * @polymerBehavior
+     */
+    Polymer.AirCruddyAjaxBehavior = {
+        properties: {
+            endpoint: {
+                type: String,
+                notify: true
+            }
+        },
+        // --- Life Cycle
+        // --- ---------------------------
+
+        created: function () {
+            // Object that handles the ajax form submission request.
+            this._requestGet = this._createGetIronAjax();
+            this._requestCreate = this._createCreateIronAjax();
+            this._requestUpdate = this._createUpdateIronAjax();
+            this._requestDelete = this._createDeleteIronAjax();
+            // Log
+            // console.log('End Ready behaviors', 'endpoint', this.endpoint);
+        },
+
+
+
+        // --- Service Instantiation
+        // --- ---------------------------
+        _createIronAjax: function (type, verb) {
+            var requestBot = document.createElement('iron-ajax');
+            requestBot.method = verb || type.toUpperCase();
+            requestBot.addEventListener('response', this['_handleResponse' + type].bind(this));
+            requestBot.addEventListener('error', this['_handleError' + type].bind(this));
+            return requestBot;
+        },
+
+        _createGetIronAjax: function () {
+            return this._createIronAjax('Get');
+        },
+        _createCreateIronAjax: function () {
+            return this._createIronAjax('Create', 'POST');
+        },
+        _createUpdateIronAjax: function () {
+            return this._createIronAjax('Update', 'PUT');
+        },
+        _createDeleteIronAjax: function () {
+            return this._createIronAjax('Delete');
+        },
+
+
+        // --- Required Api
+        // --- ---------------------------
+        _entityGetUrl: function () {
+            return this.endpoint + '/' + this.entityId;
+        },
+        _entityUrlCreate: function () {
+            return this.endpoint;
+        },
+        _entityUrlUpdate: function () {
+            return this._entityGetUrl();
+        },
+        _entityUrlDelete: function () {
+            return this._entityGetUrl();
+        },
+
+        _serializeDataCreate: function (data) {
+            console.error('Required Api implementation for function : [%s]', '_serializeDataCreate');
+        },
+
+        _serializeDataUpdate: function (data) {
+            console.error('Required Api implementation for function : [%s]', '_serializeDataUpdate');
+        },
+        _serializeDataDelete: function (data) {
+            console.error('Required Api implementation for function : [%s]', '_serializeDataDelete');
+        },
+
+        _deserializeDataGet: function (data) {
+            return data;
+        },
+
+        // --- Common Format response converter
+        // --- ------------------------------------
+        _convertAjaxContentAsJson: function (detail) {
+            return detail;
+        },
+
+        _convertAjaxError: function (event) {
+//            console.error('Error : ', event.detail);
+//            console.error('Error request : ', event.detail.request.xhr);
+            var error =  this._convertAjaxContentAsJson(event.detail.error);
+            // Status
+            var xhrRes = event.detail.request.xhr.response;
+            var status = xhrRes.statusCode;
+            var statusText = xhrRes.response;
+            var detail =  {
+                error: error,
+                status: status,
+                statusText: statusText
+            };
+            this.fire('air-cruddy-error', detail);
+        },
+
+        _convertAjaxResponse: function (event) {
+            var response = this._convertAjaxContentAsJson(event.detail.response);
+            // Status
+            var xhrRes = event.detail.request.xhr.response;
+            var status = xhrRes.statusCode; /// detail.xhr.status;
+            var statusText = xhrRes.response;//detail.xhr.statusText;
+            var detail =  {
+                response: response,
+                status: status,
+                statusText: statusText
+            };
+            this.fire('air-cruddy-response', detail);
+            return detail;
+        },
+
+        _convertAjaxResponseGet: function (event) {
+            var detail = this._convertAjaxResponse(event);
+            // Convert Data Format to a common format
+            var data = this._deserializeDataGet( detail.response);
+            detail.response = data;
+            return detail;
+        },
+
+        // --- Entity Save handler
+        // --- ---------------------
+        _convertAjaxResponseSave: function (event) {
+            var detail = this._convertAjaxResponse(event);
+            // Fire Event
+            this.fire('air-cruddy-response-save', detail);
+            return detail;
+        },
+
+        _convertAjaxErrorSave: function (event) {
+            var detail = this._convertAjaxError(event);
+            this.fire('air-cruddy-error-save', detail);
+            return detail;
+        },
+
+        // --- Entity GET
+        // --- ---------------------------
+
+        /**
+         * Called to request the get the entity from server.
+         */
+        _entityGet: function (data) {
+            this._requestGet.url = this._entityGetUrl(data);
+            this._requestGet.generateRequest();
+        },
+
+        _handleResponseGet: function (event) {
+            //console.error('Required Api implementation for function : [%s]', '_handleResponseGet');
+            var detail = this._convertAjaxResponseGet(event);
+            // Fire Event
+            this.fire('air-cruddy-response-get', detail);
+        },
+        _handleErrorGet: function (event, detail) {
+           // console.error('Required Api implementation for function : [%s]', '_handleErrorGet');
+            var detail = this._convertAjaxError(event);
+            // Fire Event
+            this.fire('air-cruddy-error-get', detail);
+        },
+
+
+        // --- Entity Create
+        // --- ---------------------
+        /**
+         * Called to request the create the entity to server.
+         */
+        _entityCreate: function (data) {
+            this._requestCreate.url = this._entityUrlCreate(data);
+            this._requestCreate.body = this._serializeDataCreate(data);
+            this._requestCreate.generateRequest();
+        },
+
+        _handleResponseCreate: function (event) {
+            //console.error('Required Api implementation for function : [%s]', '_handleResponseCreate');
+            var detail = this._convertAjaxResponseSave(event);
+            // Fire Event
+            this.fire('air-cruddy-response-create', detail);
+        },
+        _handleErrorCreate: function (event) {
+            // console.error('Required Api implementation for function : [%s]', '_handleErrorCreate');
+            var detail = this._convertAjaxErrorSave(event);
+            // Fire Event
+            this.fire('air-cruddy-error-create', detail);
+        },
+
+
+        // --- Entity Update
+        // --- ---------------------
+        /**
+         * Called to request the update the entity to server.
+         */
+        _entityUpdate: function (data) {
+            this._requestUpdate.url = this._entityUrlUpdate(data);
+            this._requestUpdate.body = this._serializeDataUpdate(data);
+            this._requestUpdate.generateRequest();
+        },
+
+        _handleResponseUpdate: function (event) {
+            //console.error('Required Api implementation for function : [%s]', '_handleResponseUpdate');
+            var detail = this._convertAjaxResponseSave(event);
+            // Fire Event
+            this.fire('air-cruddy-response-update', detail);
+        },
+        _handleErrorUpdate: function (event) {
+            //console.error('Required Api implementation for function : [%s]', '_handleErrorUpdate');
+            var detail = this._convertAjaxErrorSave(event);
+            // Fire Event
+            this.fire('air-cruddy-error-update', detail);
+        },
+
+
+        // --- Entity Delete Create
+        // --- ---------------------
+        /**
+         * Called to request the delete the entity to server.
+         */
+        _entityDelete: function (data) {
+            this._requestDelete.url = this._entityUrlDelete();
+            this._requestDelete.body = this._serializeDataDelete(data);
+            this._requestDelete.generateRequest();
+        },
+
+        _handleResponseDelete: function (event) {
+            //console.error('Required Api implementation for function : [%s]', '_handleResponseDelete');
+            var detail = this._convertAjaxResponse(event);
+            this.fire('air-cruddy-response-delete', detail);
+        },
+
+        _handleErrorDelete: function (event) {
+            //console.error('Required Api implementation for function : [%s]', '_handleErrorDelete');
+            var detail = this._convertAjaxError(event);
+            this.fire('air-cruddy-error-delete', detail);
+        }
+
+        // --- Other
+        // --- ---------------------
+
+
+    };
+
+
+    /**
+     * @polymerBehavior
+     */
+    Polymer.AirCruddyAjaxRestApiBehavior = {
+        // --- Entity Url Apis
+        // --- ---------------------------
+        _entityGetBaseUrl: function (opt) {
+            var endpointUrl = this.endpoint;
+            return endpointUrl;
+        },
+
+        _entityGetUrl: function (opt) {
+            var entityId = this.entityId;
+            var version = opt.version;
+            var endpointUrl = this._entityGetBaseUrl(opt);
+            if (entityId) {
+                endpointUrl += '/' + entityId;
+            }
+            if (version) {
+                endpointUrl += '?version=' + version;
+            }
+            return endpointUrl;
+        },
+
+        _entityUrlCreate: function (data) {
+            var endpointUrl = this._entityGetBaseUrl(opt);
+            return endpointUrl;
+        },
+        _entityUrlUpdate: function (data) {
+            return this._entityGetUrl(data);
+        },
+        _entityUrlDelete: function (data) {
+            return this._entityGetUrl(data);
+        },
+
+        // --- Entity Serialization Apis
+        // --- ---------------------------
+        _serializeDataCreate: function (data) {
+            var opt = {
+                body: data._source
+            };
+            this.serialize(opt);
+        },
+
+        _serializeDataUpdate: function (data) {
+            var opt = {
+                version: data._version,
+                body: data._source
+            };
+            this.serialize(opt);
+        },
+        _serializeDataDelete: function (data) {
+            var opt = {
+                version: data._version
+            };
+            this.serialize(opt);
+        }
+    };
+
+    /**
+     * @polymerBehavior
+     */
+    Polymer.AirCruddyAjaxRestApiBehavior = [Polymer.AirCruddyAjaxBehavior, Polymer.AirCruddyAjaxRestApiBehavior];
+
+
+</script>

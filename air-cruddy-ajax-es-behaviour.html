@@ -1,0 +1,95 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="air-cruddy-ajax-behaviour.html">
+
+<script>
+
+
+    /**
+     * @polymerBehavior
+     */
+    Polymer.AirCruddyAjaxEsApiBehavior = {
+        properties: {
+            index: {
+                type: String,
+                notify: true
+            },
+            indexType: {
+                type: String,
+                notify: true
+            }
+        },
+
+        // --- Entity Url Apis
+        // --- ---------------------------
+        _entityGetBaseUrl: function (opt) {
+            var index = opt.index || this.index;
+            var type = opt.type || this.indexType;
+            var endpointUrl = this.endpoint;
+            if (index) {
+                endpointUrl += '/' + this.index;
+            }
+            if (type) {
+                endpointUrl += '/' + this.type;
+            }
+            return endpointUrl;
+        },
+
+        _entityGetUrl: function (opt) {
+            var entityId = this.entityId;
+            var version = opt.version;
+            var endpointUrl = this._entityGetBaseUrl(opt);
+            if (entityId) {
+                endpointUrl += '/' + entityId;
+            }
+            if (version) {
+                endpointUrl += '?version=' + version;
+            }
+            return endpointUrl;
+        },
+
+        _entityUrlCreate: function (data) {
+            var endpointUrl = this._entityGetBaseUrl(opt);
+            return endpointUrl;
+        },
+        _entityUrlUpdate: function (data) {
+            return this._entityGetUrl(data);
+        },
+        _entityUrlDelete: function (data) {
+            return this._entityGetUrl(data);
+        },
+
+        // --- Entity Serialization Apis
+        // --- ---------------------------
+        _serializeDataCreate: function (data) {
+            var opt = {
+                body: data._source
+            };
+            this.serialize(opt);
+        },
+
+        _serializeDataUpdate: function (data) {
+            var opt = {
+                version: data._version,
+                body: {
+                    doc: data._source
+                }
+            };
+            this.serialize(opt);
+        },
+        _serializeDataDelete: function (data) {
+            var opt = {
+                version: data._version
+            };
+            this.serialize(opt);
+        }
+
+    };
+
+
+    /**
+     * @polymerBehavior
+     */
+    Polymer.AirCruddyAjaxEsBehavior = [Polymer.AirCruddyAjaxBehavior, Polymer.AirCruddyAjaxEsApiBehavior];
+
+</script>
