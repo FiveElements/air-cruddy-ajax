@@ -76,7 +76,7 @@
             if (version) {
                 endpointUrl += '?version=' + version;
             }
-           // console.log('Ajax get Url', endpointUrl);
+            // console.log('Ajax get Url', endpointUrl);
             return endpointUrl;
         },
         _entityUrlCreate: function (data) {
@@ -180,17 +180,22 @@
             //console.error('Required Api implementation for function : [%s]', '_handleResponseGet');
             var detail = this._convertAjaxResponseGet(event);
             // Fire Event
+            this._onResponseGet(detail);
             console.log('Fire Event air-cruddy-response-get', detail);
             this.fire('air-cruddy-response-get', detail);
         },
         _handleErrorGet: function (event, detail) {
             // console.error('Required Api implementation for function : [%s]', '_handleErrorGet');
             var detail = this._convertAjaxError(event);
+            this._onErrorGet(detail);
             // Fire Event
             this.fire('air-cruddy-error-get', detail);
         },
 
-
+        _onResponseGet: function (detail) {
+        },
+        _onErrorGet: function (detail) {
+        },
         // --- Entity Create
         // --- ---------------------
         /**
@@ -205,16 +210,22 @@
         _handleResponseCreate: function (event) {
             //console.error('Required Api implementation for function : [%s]', '_handleResponseCreate');
             var detail = this._convertAjaxResponseSave(event);
+            this._onResponseCreate(detail);
             // Fire Event
             this.fire('air-cruddy-response-create', detail);
         },
+
         _handleErrorCreate: function (event) {
             // console.error('Required Api implementation for function : [%s]', '_handleErrorCreate');
             var detail = this._convertAjaxErrorSave(event);
+            this._onErrorCreate(detail);
             // Fire Event
             this.fire('air-cruddy-error-create', detail);
         },
-
+        _onResponseCreate: function (detail) {
+        },
+        _onErrorCreate: function (detail) {
+        },
 
         // --- Entity Update
         // --- ---------------------
@@ -228,16 +239,23 @@
         },
 
         _handleResponseUpdate: function (event) {
-            //console.error('Required Api implementation for function : [%s]', '_handleResponseUpdate');
             var detail = this._convertAjaxResponseSave(event);
+            this._onResponseUpdate(detail);
             // Fire Event
             this.fire('air-cruddy-response-update', detail);
         },
         _handleErrorUpdate: function (event) {
-            //console.error('Required Api implementation for function : [%s]', '_handleErrorUpdate');
             var detail = this._convertAjaxErrorSave(event);
+            this._onErrorUpdate(detail);
             // Fire Event
             this.fire('air-cruddy-error-update', detail);
+        },
+
+        _onResponseUpdate: function (detail) {
+            //console.error('Required Api implementation for function : [%s]', '_onResponseUpdate');
+        },
+        _onErrorUpdate: function (detail) {
+            //console.error('Required Api implementation for function : [%s]', '_onErrorUpdate');
         },
 
 
@@ -255,14 +273,24 @@
         _handleResponseDelete: function (event) {
             //console.error('Required Api implementation for function : [%s]', '_handleResponseDelete');
             var detail = this._convertAjaxResponse(event);
+            this._onResponseDelete(detail);
             this.fire('air-cruddy-response-delete', detail);
         },
 
         _handleErrorDelete: function (event) {
             //console.error('Required Api implementation for function : [%s]', '_handleErrorDelete');
             var detail = this._convertAjaxError(event);
+            this._onErrorDelete(detail);
             this.fire('air-cruddy-error-delete', detail);
-        }
+        },
+
+
+        _onResponseDelete: function (detail) {
+        },
+
+        _onErrorDelete: function (detail) {
+        },
+
 
         // --- Other
         // --- ---------------------
@@ -294,17 +322,16 @@
 //            }
 //            return endpointUrl;
 //        },
-
-        _entityUrlCreate: function (data) {
-            var endpointUrl = this._entityGetBaseUrl(opt);
-            return endpointUrl;
-        },
-        _entityUrlUpdate: function (data) {
-            return this._entityGetUrl(data);
-        },
-        _entityUrlDelete: function (data) {
-            return this._entityGetUrl(data);
-        },
+//        _entityUrlCreate: function (data) {
+//            var endpointUrl = this._entityGetBaseUrl(opt);
+//            return endpointUrl;
+//        },
+//        _entityUrlUpdate: function (data) {
+//            return this._entityGetUrl(data);
+//        },
+//        _entityUrlDelete: function (data) {
+//            return this._entityGetUrl(data);
+//        },
 
         // --- Entity Serialization Apis
         // --- ---------------------------
