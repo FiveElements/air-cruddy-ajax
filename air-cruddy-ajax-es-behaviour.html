@@ -56,9 +56,9 @@
         },
 
 
-        _entityUrlCreate: function (data) {
+        _entityUrlCreate: function (opt) {
             var endpointUrl = this._entityGetBaseUrl(opt);
-            return endpointUrl + '/_create'; // OR '?op_type=create'
+            return endpointUrl + '?op_type=create'; // OR '?op_type=create'
         },
         _entityUrlUpdate: function (data) {
             return this._entityGetUrl(data);
