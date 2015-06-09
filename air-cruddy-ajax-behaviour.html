@@ -33,6 +33,7 @@
         _createIronAjax: function (type, verb) {
             var requestBot = document.createElement('iron-ajax');
             requestBot.method = verb || type.toUpperCase();
+            requestBot.contentType = 'application/json';
             requestBot.addEventListener('response', this['_handleResponse' + type].bind(this));
             requestBot.addEventListener('error', this['_handleError' + type].bind(this));
             return requestBot;
@@ -104,6 +105,10 @@
             return data;
         },
 
+        _serializeDataAsString: function(data) {
+            return JSON.stringify(data);
+        },
+
         // --- Common Format response converter
         // --- ------------------------------------
         _convertAjaxContentAsJson: function (detail) {
@@ -124,6 +129,7 @@
                 statusText: statusText
             };
             this.fire('air-cruddy-error', detail);
+            return detail;
         },
 
         _convertAjaxResponse: function (event) {
@@ -184,11 +190,12 @@
             console.log('Fire Event air-cruddy-response-get', detail);
             this.fire('air-cruddy-response-get', detail);
         },
-        _handleErrorGet: function (event, detail) {
+        _handleErrorGet: function (event) {
             // console.error('Required Api implementation for function : [%s]', '_handleErrorGet');
             var detail = this._convertAjaxError(event);
             this._onErrorGet(detail);
             // Fire Event
+
             this.fire('air-cruddy-error-get', detail);
         },
 
@@ -233,8 +240,11 @@
          * Called to request the update the entity to server.
          */
         _entityUpdate: function (data) {
+            console.log('Request Update data', data);
+
             this._requestUpdate.url = this._entityUrlUpdate(data);
             this._requestUpdate.body = this._serializeDataUpdate(data);
+            console.log('Request Update _serializeDataUpdate ', this._requestUpdate.body);
             this._requestUpdate.generateRequest();
         },
 
@@ -339,7 +349,7 @@
             var opt = {
                 body: data._source
             };
-            this.serialize(opt);
+            return  this._serializeDataAsString(opt);
         },
 
         _serializeDataUpdate: function (data) {
@@ -347,13 +357,13 @@
                 version: data._version,
                 body: data._source
             };
-            this.serialize(opt);
+            return this._serializeDataAsString(opt);
         },
         _serializeDataDelete: function (data) {
             var opt = {
                 version: data._version
             };
-            this.serialize(opt);
+            return this._serializeDataAsString(opt);
         }
     };
 

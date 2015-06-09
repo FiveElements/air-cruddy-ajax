@@ -35,9 +35,15 @@
             return endpointUrl;
         },
 
-        _entityGetUrl: function (opt) {
-            var entityId = this.entityId;
-            var version = opt.version;
+        _entityGetUrl: function (opt, ver) {
+            var entityId, version;
+            if (typeof opt === 'string') {
+                entityId = opt;
+                version = ver;
+            } else { // Opt is JSON
+                entityId = opt._id || opt.id;
+                version = opt._version || opt.version;
+            }
             var endpointUrl = this._entityGetBaseUrl(opt);
             if (entityId) {
                 endpointUrl += '/' + entityId;
@@ -45,12 +51,14 @@
             if (version) {
                 endpointUrl += '?version=' + version;
             }
+            // console.log('Ajax get Url', endpointUrl);
             return endpointUrl;
         },
 
+
         _entityUrlCreate: function (data) {
             var endpointUrl = this._entityGetBaseUrl(opt);
-            return endpointUrl;
+            return endpointUrl + '/_create'; // OR '?op_type=create'
         },
         _entityUrlUpdate: function (data) {
             return this._entityGetUrl(data);
@@ -65,23 +73,15 @@
             var opt = {
                 body: data._source
             };
-            this.serialize(opt);
+            return this._serializeDataAsString(opt);
         },
 
         _serializeDataUpdate: function (data) {
-            var opt = {
-                version: data._version,
-                body: {
-                    doc: data._source
-                }
-            };
-            this.serialize(opt);
+            var opt = data._source
+            return this._serializeDataAsString(opt);
         },
         _serializeDataDelete: function (data) {
-            var opt = {
-                version: data._version
-            };
-            this.serialize(opt);
+            return undefined;
         }
 
     };
