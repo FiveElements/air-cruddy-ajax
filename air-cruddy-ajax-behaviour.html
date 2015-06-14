@@ -12,6 +12,12 @@
             endpoint: {
                 type: String,
                 notify: true
+            },
+            headers: {
+                type: Object,
+                value: function() {
+                    return {};
+                }
             }
         },
         // --- Life Cycle
@@ -34,6 +40,7 @@
             var requestBot = document.createElement('iron-ajax');
             requestBot.method = verb || type.toUpperCase();
             requestBot.contentType = 'application/json';
+
             requestBot.addEventListener('response', this['_handleResponse' + type].bind(this));
             requestBot.addEventListener('error', this['_handleError' + type].bind(this));
             return requestBot;
@@ -187,12 +194,15 @@
         // --- Entity GET
         // --- ---------------------------
 
+        _definedRequestBotParams: function (requestBot) {
+            requestBot.headers = this.headers;
+        },
         /**
          * Called to request the get the entity from server.
          */
         _entityGet: function (data) {
-
             this._requestGet.url = this._entityGetUrl(data);
+            this._definedRequestBotParams(this._requestGet);
             this._requestGet.generateRequest();
         },
 
@@ -221,6 +231,8 @@
          * Called to request the create the entity to server.
          */
         _entityCreate: function (data) {
+            this._definedRequestBotParams(this._requestCreate);
+
             this._requestCreate.url = this._entityUrlCreate(data);
             this._requestCreate.body = this._serializeDataCreate(data);
             this._requestCreate.generateRequest();
@@ -252,6 +264,8 @@
          * Called to request the update the entity to server.
          */
         _entityUpdate: function (data) {
+            this._definedRequestBotParams(this._requestUpdate);
+
             this._requestUpdate.url = this._entityUrlUpdate(data);
             this._requestUpdate.body = this._serializeDataUpdate(data);
             this._requestUpdate.generateRequest();
@@ -284,6 +298,8 @@
          * Called to request the delete the entity to server.
          */
         _entityDelete: function (data) {
+            this._definedRequestBotParams(this._requestDelete);
+
             this._requestDelete.url = this._entityUrlDelete();
             this._requestDelete.body = this._serializeDataDelete(data);
             this._requestDelete.generateRequest();
