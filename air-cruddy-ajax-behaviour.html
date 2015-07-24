@@ -5,6 +5,11 @@
 <script>
 
     /**
+     * FiveElements Namespace definition
+     */
+    var FiveElements = FiveElements || {};
+
+    /**
      * @polymerBehavior
      *
      * Crud Accessor that convert every Server to the expercted format
@@ -33,7 +38,7 @@
      *       }
      *    }
      */
-    Polymer.AirCruddyAjaxBehavior = {
+    FiveElements.AirCruddyAjaxBehavior = {
         properties: {
             endpoint: {
                 type: String,
@@ -93,7 +98,6 @@
             return endpointUrl;
         },
 
-
         _entityGetUrl: function (opt, ver) {
             var entityId, version;
             if (typeof opt === 'string') {
@@ -113,6 +117,7 @@
             // console.log('Ajax get Url', endpointUrl);
             return endpointUrl;
         },
+
         _entityUrlCreate: function (data) {
             return this.endpoint;
         },
@@ -366,7 +371,7 @@
     /**
      * @polymerBehavior
      */
-    Polymer.AirCruddyAjaxRestApiBehavior = {
+    FiveElements.AirCruddyAjaxRestApiBehavior = {
         // --- Entity Url Apis
         // --- ---------------------------
 //        _entityGetBaseUrl: function (opt) {
@@ -424,7 +429,7 @@
     /**
      * @polymerBehavior
      */
-    Polymer.AirCruddyAjaxRestApiBehavior = [Polymer.AirCruddyAjaxBehavior, Polymer.AirCruddyAjaxRestApiBehavior];
+    FiveElements.AirCruddyAjaxRestApiBehavior = [FiveElements.AirCruddyAjaxBehavior, FiveElements.AirCruddyAjaxRestApiBehavior];
 
 
 </script>

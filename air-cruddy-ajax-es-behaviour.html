@@ -3,12 +3,16 @@
 <link rel="import" href="air-cruddy-ajax-behaviour.html">
 
 <script>
+    /**
+     * FiveElements Namespace definition
+     */
+    var FiveElements = FiveElements || {};
 
 
     /**
      * @polymerBehavior
      */
-    Polymer.AirCruddyAjaxEsApiBehavior = {
+    FiveElements.AirCruddyAjaxEsApiBehavior = {
         properties: {
             index: {
                 type: String,
@@ -90,6 +94,6 @@
     /**
      * @polymerBehavior
      */
-    Polymer.AirCruddyAjaxEsBehavior = [Polymer.AirCruddyAjaxBehavior, Polymer.AirCruddyAjaxEsApiBehavior];
+    FiveElements.AirCruddyAjaxEsBehavior = [FiveElements.AirCruddyAjaxBehavior, FiveElements.AirCruddyAjaxEsApiBehavior];
 
 </script>
