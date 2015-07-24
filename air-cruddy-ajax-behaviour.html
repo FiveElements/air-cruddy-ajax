@@ -118,14 +118,14 @@
             return endpointUrl;
         },
 
-        _entityUrlCreate: function (data) {
+        _entityUrlCreate: function (entityId) {
             return this.endpoint;
         },
-        _entityUrlUpdate: function (data, ver) {
-            return this._entityGetUrl(data, ver);
+        _entityUrlUpdate: function (entityId, entityVersion) {
+            return this._entityGetUrl(entityId, entityVersion);
         },
-        _entityUrlDelete: function (data, ver) {
-            return this._entityGetUrl(data, ver);
+        _entityUrlDelete: function (entityId, entityVersion) {
+            return this._entityGetUrl(entityId, entityVersion);
         },
 
         _serializeDataCreate: function (data) {
@@ -234,8 +234,10 @@
         /**
          * Called to request the get the entity from server.
          */
-        _entityGet: function (data) {
-            this._requestGet.url = this._entityGetUrl(data);
+        _entityGet: function (entityId, entityVersion) {
+            console.log('Ajax arguments : ', arguments);
+            this._requestGet.url = this._entityGetUrl(entityId, entityVersion);
+            console.log('Request Entity Get for Url : ', this._requestGet.url);
             this._definedRequestBotParams(this._requestGet);
             this._requestGet.generateRequest();
         },
@@ -264,10 +266,10 @@
         /**
          * Called to request the create the entity to server.
          */
-        _entityCreate: function (data) {
+        _entityCreate: function (entityId, data, entityVersion) {
             this._definedRequestBotParams(this._requestCreate);
 
-            this._requestCreate.url = this._entityUrlCreate(data);
+            this._requestCreate.url = this._entityUrlCreate(entityId, entityVersion);
             this._requestCreate.body = this._serializeDataCreate(data);
             this._requestCreate.generateRequest();
         },
@@ -297,10 +299,11 @@
         /**
          * Called to request the update the entity to server.
          */
-        _entityUpdate: function (data) {
+        _entityUpdate: function (entityId, data, entityVersion) {
             this._definedRequestBotParams(this._requestUpdate);
 
-            this._requestUpdate.url = this._entityUrlUpdate(data);
+            this._requestUpdate.url = this._entityUrlUpdate(entityId, entityVersion);
+            console.log('Request Entity Update for Url : ', this._requestUpdate.url, ' / data ', data);
             this._requestUpdate.body = this._serializeDataUpdate(data);
             this._requestUpdate.generateRequest();
         },
@@ -331,10 +334,10 @@
         /**
          * Called to request the delete the entity to server.
          */
-        _entityDelete: function (data) {
+        _entityDelete: function (entityId, entityVersion) {
             this._definedRequestBotParams(this._requestDelete);
 
-            this._requestDelete.url = this._entityUrlDelete();
+            this._requestDelete.url = this._entityUrlDelete(entityId, entityVersion);
             this._requestDelete.body = this._serializeDataDelete(data);
             this._requestDelete.generateRequest();
         },
