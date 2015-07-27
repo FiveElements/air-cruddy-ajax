@@ -1,9 +1,9 @@
 {
-  "name": "air-cruddy-ajax",
+  "name": "air-cruddy-cloudy",
   "private": true,
   "version": "0.0.1",
   "description": "An element that manage CRUD connectivity",
-  "main": "air-cruddy-ajax.html",
+  "main": "air-cruddy-cloudy.html",
   "author": [
     "The Five Elements Authors"
   ],
@@ -12,7 +12,8 @@
     "polymer",
     "crud",
     "ajax",
-    "air-elements"
+    "air-elements",
+    "air-cruddy"
   ],
   "ignore": [
     "/.*",

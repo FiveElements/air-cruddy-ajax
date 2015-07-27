@@ -12,7 +12,7 @@
     /**
      * @polymerBehavior
      *
-     * Crud Accessor that convert every Server to the expercted format
+     * Crud Accessor that convert every Server to the expected format
      *
      *
      * The Apis To Implement
@@ -38,7 +38,7 @@
      *       }
      *    }
      */
-    FiveElements.AirCruddyAjaxBehavior = {
+    FiveElements.AirCruddyCloudyBehavior = {
         properties: {
             endpoint: {
                 type: String,
@@ -374,7 +374,7 @@
     /**
      * @polymerBehavior
      */
-    FiveElements.AirCruddyAjaxRestApiBehavior = {
+    FiveElements.AirCruddyCloudyDefaultApiBehavior = {
         // --- Entity Url Apis
         // --- ---------------------------
 //        _entityGetBaseUrl: function (opt) {
@@ -432,7 +432,7 @@
     /**
      * @polymerBehavior
      */
-    FiveElements.AirCruddyAjaxRestApiBehavior = [FiveElements.AirCruddyAjaxBehavior, FiveElements.AirCruddyAjaxRestApiBehavior];
+    FiveElements.AirCruddyCloudyDefaultImplBehavior = [FiveElements.AirCruddyCloudyBehavior, FiveElements.AirCruddyCloudyDefaultApiBehavior];
 
 
 </script>
