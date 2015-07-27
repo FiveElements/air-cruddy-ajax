@@ -28,7 +28,7 @@
      *       }
      *    }
      *
-     * ### Save (Create / Update) Response Format
+     * ### Save (Create / Update) Request Format
      *
      *    {
      *       version: 1,
@@ -37,6 +37,25 @@
      *         lastname: "Lekatariba Lamina-Tchaï Ekbat De Sebat"
      *       }
      *    }
+     *
+     *
+     * ### Update 409 Error Format
+     *
+     *    {
+     *       error: "VersionConflictEngineException ...",
+     *       "status":409,
+     *       _document: {
+     *          _id: "AAApkZAAOAAAQYEAAJ",
+     *          _version: 7,
+     *           _source: {
+     *             firstname: "Leeloominaï",
+     *             lastname: "Lekatariba Lamina-Tchaï Ekbat De Sebat"
+     *           }
+     *       }
+     *    }
+     *
+     *
+     *
      */
     FiveElements.AirCruddyCloudyBehavior = {
         properties: {
@@ -46,10 +65,20 @@
             },
             headers: {
                 type: Object,
-                value: function() {
+                value: function () {
                     return {};
                 }
             }
+
+            // Inernal Properties
+//            airCruddyCloudyCallbackRequests: {
+//                type: Array,
+//                notify: true,
+//                readOnly: true,
+//                value: function () {
+//                    return [];
+//                }
+//            }
         },
         // --- Life Cycle
         // --- ---------------------------
@@ -143,7 +172,7 @@
             return data;
         },
 
-        _serializeDataAsString: function(data) {
+        _serializeDataAsString: function (data) {
             return JSON.stringify(data);
         },
 
@@ -225,6 +254,49 @@
             return detail;
         },
 
+        // --- Entity Callback Apis
+        // --- ---------------------------
+//        registerIronRequestCallback: function (ironRequest, callbackResponse, callbackError) {
+//            if (ironRequest) {
+//                var registerCallback = false;
+//                if (callbackResponse && typeof callbackResponse === 'function') {
+//                    ironRequest.airCruddyCloudyRequestCallbackResponse = callbackResponse;
+//                    registerCallback = true;
+//                }
+//                if (callbackError && typeof callbackError === 'function') {
+//                    ironRequest.airCruddyCloudyRequestCallbackError = callbackError;
+//                    registerCallback = true;
+//                }
+//                if (registerCallback) {
+//                    this.airCruddyCloudyCallbackRequests.push(ironRequest);
+//                }
+//            }
+//        },
+//
+//        discardIronRequestCallback: function (ironRequest, eventResponse, eventError) {
+//            var ironRequests;
+//            var requestIndex = this.airCruddyCloudyCallbackRequests.indexOf(ironRequest);
+//            if (requestIndex > -1) {
+//                ironRequests = this.airCruddyCloudyCallbackRequests.splice(requestIndex, 1);
+//            }
+//            // Call the Callback function
+//            if (ironRequests && ironRequests.length > 0) {
+//                ironRequests.forEach(function (ironRequest) {
+//                    // Callback Response
+//                    if (eventResponse && ironRequest.airCruddyCloudyRequestCallbackResponse) {
+//                        ironRequest.airCruddyCloudyRequestCallbackResponse(eventResponse);
+//                    }
+//                    // Callback Error
+//                    if (eventError && ironRequest.airCruddyCloudyRequestCallbackError ) {
+//                        ironRequest.airCruddyCloudyRequestCallbackError(eventError);
+//                    }
+//                    // Clean Request Object
+//                    delete  ironRequest.airCruddyCloudyRequestCallbackResponse;
+//                    delete  ironRequest.airCruddyCloudyRequestCallbackError;
+//                });
+//            }
+//        },
+
         // --- Entity GET
         // --- ---------------------------
 
@@ -239,7 +311,9 @@
             this._requestGet.url = this._entityGetUrl(entityId, entityVersion);
             console.log('Request Entity Get for Url : ', this._requestGet.url);
             this._definedRequestBotParams(this._requestGet);
-            this._requestGet.generateRequest();
+            var ironRequest = this._requestGet.generateRequest();
+            // Call register Callback
+//            this.registerIronRequestCallback(ironRequest, callbackResponse, callbackError);
         },
 
         _handleResponseGet: function (event) {
@@ -247,12 +321,17 @@
             var detail = this._convertAjaxResponseGet(event);
             // Fire Event
             this._onResponseGet(detail);
+            // Call register Callback
+//            this.discardIronRequestCallback(event.detail, event);
             this.fire('air-cruddy-response-get', detail);
         },
+
         _handleErrorGet: function (event) {
             // console.error('Required Api implementation for function : [%s]', '_handleErrorGet');
             var detail = this._convertAjaxError(event);
             this._onErrorGet(detail);
+            // Call register Callback
+//            this.discardIronRequestCallback(event.detail, null , event);
             // Fire Event
             this.fire('air-cruddy-error-get', detail);
         },
@@ -271,7 +350,7 @@
 
             this._requestCreate.url = this._entityUrlCreate(entityId, entityVersion);
             this._requestCreate.body = this._serializeDataCreate(data);
-            this._requestCreate.generateRequest();
+            var ironRequest = this._requestCreate.generateRequest();
         },
 
         _handleResponseCreate: function (event) {
@@ -305,7 +384,7 @@
             this._requestUpdate.url = this._entityUrlUpdate(entityId, entityVersion);
             console.log('Request Entity Update for Url : ', this._requestUpdate.url, ' / data ', data);
             this._requestUpdate.body = this._serializeDataUpdate(data);
-            this._requestUpdate.generateRequest();
+            var ironRequest = this._requestUpdate.generateRequest();
         },
 
         _handleResponseUpdate: function (event) {
@@ -339,7 +418,7 @@
 
             this._requestDelete.url = this._entityUrlDelete(entityId, entityVersion);
             this._requestDelete.body = this._serializeDataDelete(data);
-            this._requestDelete.generateRequest();
+            var ironRequest = this._requestDelete.generateRequest();
         },
 
         _handleResponseDelete: function (event) {
@@ -382,7 +461,7 @@
             var opt = {
                 body: data._source
             };
-            return  this._serializeDataAsString(opt);
+            return this._serializeDataAsString(opt);
         },
 
         _serializeDataUpdate: function (data) {
