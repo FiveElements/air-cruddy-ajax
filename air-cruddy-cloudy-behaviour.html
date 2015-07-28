@@ -307,9 +307,8 @@
          * Called to request the get the entity from server.
          */
         _entityGet: function (entityId, entityVersion) {
-            console.log('Ajax arguments : ', arguments);
             this._requestGet.url = this._entityGetUrl(entityId, entityVersion);
-            console.log('Request Entity Get for Url : ', this._requestGet.url);
+           // console.log('Request Entity Get for Url : ', this._requestGet.url);
             this._definedRequestBotParams(this._requestGet);
             var ironRequest = this._requestGet.generateRequest();
             // Call register Callback
