@@ -308,7 +308,7 @@
          */
         _entityGet: function (entityId, entityVersion) {
             this._requestGet.url = this._entityGetUrl(entityId, entityVersion);
-           // console.log('Request Entity Get for Url : ', this._requestGet.url);
+            // console.log('Request Entity Get for Url : ', this._requestGet.url);
             this._definedRequestBotParams(this._requestGet);
             var ironRequest = this._requestGet.generateRequest();
             // Call register Callback
@@ -316,7 +316,7 @@
         },
 
         _handleResponseGet: function (event) {
-            //console.error('Required Api implementation for function : [%s]', '_handleResponseGet');
+            //console.log('_handleResponseGet ', event);
             var detail = this._convertAjaxResponseGet(event);
             // Fire Event
             this._onResponseGet(detail);

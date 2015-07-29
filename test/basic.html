@@ -10,7 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 <html>
 <head>
-    <title>fire-form</title>
+    <title>air-cruddy-cloudy</title>
 
 
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
@@ -21,13 +21,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
     <link rel="import" href="../../test-fixture/test-fixture.html">
     <link rel="import" href="../air-cruddy-cloudy.html">
+    <link rel="import" href="../air-cruddy-cloudy-behaviour.html">
 
 </head>
 <body>
 
 <test-fixture id="Basic">
-    <template is="dom-template" endpoint="/responds_with_json">
-        <air-cruddy-cloudy></air-cruddy-cloudy>
+    <template is="dom-template">
+        <air-cruddy-cloudy endpoint="{{endpoint}}"></air-cruddy-cloudy>
     </template>
 </test-fixture>
 
@@ -37,7 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     suite('submitting', function () {
         var server;
         var form;
-        setup(function() {
+        setup(function () {
             server = sinon.fakeServer.create();
             server.respondWith(
                     'GET',
@@ -45,7 +46,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     [
                         200,
                         '{"Content-Type":"application/json"}',
-                        '{"success":true}'
+                        '{ "_id": "AAApkZAAOAAAQYEAAJ",  "_version": 1, "_source": { "firstname": "Leeloominaï", "lastname": "Lekatariba Lamina-Tchaï Ekbat De Sebat" } }'
+
                     ]
             );
             server.respondWith(
@@ -67,18 +69,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     ]
             );
         });
-        teardown(function() {
+        teardown(function () {
             server.restore();
         });
-        test('can submit with method=get', function(done) {
-            form = fixture('Basic');
-
-            form.addEventListener('air-cruddy-response-get', function(event) {
-                expect(submitted).to.be.equal(true);
-                var response = event.detail;
+        test('can submit with method=get', function (done) {
+            form = fixture('Basic', { endpoint: '/responds_with_json' } );
+            form.addEventListener('air-cruddy-response-get', function (event) {
+                var detail = event.detail;
+                var response = detail.response;
+                console.log('TEST response'+  JSON.stringify( response)+ '//');
                 expect(response).to.be.ok;
+                expect(detail.status).to.be.equal(200);
+
                 expect(response).to.be.an('object');
-                expect(response.success).to.be.equal(true);
+                expect(response._id).to.be.equal('AAApkZAAOAAAQYEAAJ');
                 done();
             });
             form._entityGet('monid');
