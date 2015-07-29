@@ -72,8 +72,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         teardown(function () {
             server.restore();
         });
-        test('can submit with method=get', function (done) {
+        test('entity 200 method=get', function (done) {
             form = fixture('Basic', { endpoint: '/responds_with_json' } );
+            var entityId = 'AAApkZAAOAAAQYEAAJ';
             form.addEventListener('air-cruddy-response-get', function (event) {
                 var detail = event.detail;
                 var response = detail.response;
@@ -82,10 +83,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 expect(detail.status).to.be.equal(200);
 
                 expect(response).to.be.an('object');
-                expect(response._id).to.be.equal('AAApkZAAOAAAQYEAAJ');
+                expect(response._id).to.be.equal(entityId);
                 done();
             });
-            form._entityGet('AAApkZAAOAAAQYEAAJ');
+            form._entityGet(entityId);
+
+            server.respond();
+        });
+
+        test('entity 404 method=get', function (done) {
+            form = fixture('Basic', { endpoint: '/responds_with_error' } );
+            var entityId = 'AAApkZAAOAAAQYEAAJ';
+            form.addEventListener('air-cruddy-error-get', function (event) {
+                var detail = event.detail;
+                var response = detail.error;
+                console.log('TEST response'+  JSON.stringify( response)+ '//');
+                expect(response).to.be.ok;
+                expect(detail.status).to.be.equal(404);
+
+                expect(response).to.be.an('object');
+                expect(response._id).to.be.equal(entityId);
+                done();
+            });
+            form._entityGet(entityId);
 
             server.respond();
         });
