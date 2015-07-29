@@ -42,7 +42,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             server = sinon.fakeServer.create();
             server.respondWith(
                     'GET',
-                    /\/responds_with_json.*/,
+                    /\/responds_with_json\/AAApkZAAOAAAQYEAAJ/,
                     [
                         200,
                         '{"Content-Type":"application/json"}',
@@ -85,7 +85,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 expect(response._id).to.be.equal('AAApkZAAOAAAQYEAAJ');
                 done();
             });
-            form._entityGet('monid');
+            form._entityGet('AAApkZAAOAAAQYEAAJ');
 
             server.respond();
         });
