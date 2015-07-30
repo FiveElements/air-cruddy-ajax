@@ -63,11 +63,43 @@
                 type: String,
                 notify: true
             },
+            /**
+             * HTTP request headers to send.
+             *
+             * Example:
+             *
+             *     <iron-ajax
+             *         auto
+             *         url="http://somesite.com"
+             *         headers='{"X-Requested-With": "XMLHttpRequest"}'
+             *         handle-as="json"></iron-ajax>
+             *
+             * Note: setting a `Content-Type` header here will override the value
+             * specified by the `contentType` property of this element.
+             */
             headers: {
                 type: Object,
+                observer: '_headersChanged',
                 value: function () {
                     return {};
                 }
+            },
+            /**
+             * Content type to use when sending data.
+             */
+            contentType: {
+                type: String,
+                observer: '_contentTypeChanged',
+                value: "application/json"
+            },
+
+            /**
+             * Set the withCredentials flag when sending data.
+             */
+            withCredentials: {
+                type: Boolean,
+                observer: '_withCredentialsChanged',
+                value: false
             }
 
             // Inernal Properties
@@ -93,13 +125,14 @@
             // console.log('End Ready behaviors', 'endpoint', this.endpoint);
         },
 
-
         // --- Service Instantiation
         // --- ---------------------------
         _createIronAjax: function (type, verb) {
             var requestBot = document.createElement('iron-ajax');
             requestBot.method = verb || type.toUpperCase();
-            requestBot.contentType = 'application/json';
+            requestBot.contentType = 'application/json';//this.contentType;
+//            requestBot.withCredentials = this.withCredentials;
+//            requestBot.headers = this.headers;
 
             requestBot.addEventListener('response', this['_handleResponse' + type].bind(this));
             requestBot.addEventListener('error', this['_handleError' + type].bind(this));
@@ -107,7 +140,7 @@
         },
 
         _createGetIronAjax: function () {
-            return this._createIronAjax('Get');
+            return this._createIronAjax('Get', 'GET');
         },
         _createCreateIronAjax: function () {
             return this._createIronAjax('Create', 'POST');
@@ -116,9 +149,35 @@
             return this._createIronAjax('Update', 'PUT');
         },
         _createDeleteIronAjax: function () {
-            return this._createIronAjax('Delete');
+            return this._createIronAjax('Delete', 'DELETE');
         },
 
+        // --- Observer
+        // --- ---------------------------
+        _defineIronAjaxAttr: function (propName, value) {
+            if (this._requestGet) {
+                this._requestGet[propName] = value;
+            }
+            if (this._requestCreate) {
+                this._requestCreate[propName] = value;
+            }
+            if (this._requestUpdate) {
+                this._requestUpdate[propName] = value;
+            }
+            if (this._requestDelete) {
+                this._requestDelete[propName] = value;
+            }
+        },
+        _withCredentialsChanged: function (newValue) {
+            this._defineIronAjaxAttr('withCredentials', newValue);
+        },
+        _headersChanged: function (newValue) {
+            this._defineIronAjaxAttr('headers', newValue);
+        },
+
+        _contentTypeChanged: function (newValue) {
+            this._defineIronAjaxAttr('contentType', newValue);
+        },
 
         // --- Required Api
         // --- ---------------------------
@@ -195,13 +254,13 @@
 
         // --- Common Format response converter
         // --- ------------------------------------
-        _convertAjaxContentAsJson: function (detail) {
-            return detail;
+        _convertAjaxContentAsJson: function (error) {
+            return error;
         },
 
         _convertAjaxError: function (event) {
-//            console.error('Error : ', event.detail);
-//            console.error('Error request : ', event.detail.request.xhr);
+            console.log('_handleErrorGet detail', event.detail);
+            console.dir(event.detail.error);
             var error = this._convertAjaxContentAsJson(event.detail.error);
             // Status
             var xhrRes = event.detail.request.xhr;
@@ -303,6 +362,7 @@
         _definedRequestBotParams: function (requestBot) {
             requestBot.headers = this.headers;
         },
+
         /**
          * Called to request the get the entity from server.
          */
@@ -326,7 +386,7 @@
         },
 
         _handleErrorGet: function (event) {
-            // console.error('Required Api implementation for function : [%s]', '_handleErrorGet');
+
             var detail = this._convertAjaxError(event);
             this._onErrorGet(detail);
             // Call register Callback
@@ -337,6 +397,7 @@
 
         _onResponseGet: function (detail) {
         },
+
         _onErrorGet: function (detail) {
         },
         // --- Entity Create
