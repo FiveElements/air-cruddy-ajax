@@ -475,9 +475,8 @@
          */
         _entityDelete: function (entityId, entityVersion) {
             this._definedRequestBotParams(this._requestDelete);
-
+            console.log('Request _entityDelete for ', entityId);
             this._requestDelete.url = this._entityUrlDelete(entityId, entityVersion);
-            this._requestDelete.body = this._serializeDataDelete(data);
             var ironRequest = this._requestDelete.generateRequest();
         },
 

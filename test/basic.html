@@ -28,7 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <test-fixture id="Basic">
     <template is="dom-template">
-        <air-cruddy-cloudy endpoint="{{endpoint}}"></air-cruddy-cloudy>
+        <air-cruddy-cloudy endpoint="/responds_with_json"></air-cruddy-cloudy>
     </template>
 </test-fixture>
 
@@ -65,29 +65,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     /\/responds_with_json\/badId/,
                     [
                         404,
-                        '{"Content-Type":"application/text"}',
+                        '{"Content-Type":"application/json"}',
                         '{"_index":"5elements","_type":"5elements","_id":"badId","found":false}'
+                    ]
+            );
+            // Update
+            server.respondWith(
+                    'PUT',
+                    /\/responds_with_json\/leelooId?version=1/,
+                    [
+                        200,
+                        '{"Content-Type":"application/json"}',
+                        '{"_index":"5elements","_type":"5elements","_id":"leelooId","_version":2,"created":false}'
                     ]
             );
             // Create
             server.respondWith(
                     'POST',
-                    /\/responds_with_json\/badId/,
+                    /\/responds_with_json/,
                     [
                         201,
-                        '{"Content-Type":"application/text"}',
-                        '{"_index": "5elements", "_type": "5elements", "_id": "AU7ejF7zPj4O7Qd5i8bF", "_version": 1, "created": true}'
+                        '{"Content-Type":"application/json"}',
+                        '{"_index": "5elements", "_type": "5elements", "_id": "newEntityId", "_version": 1, "created": true}'
+                    ]
+            );
+            // Delete
+            server.respondWith(
+                    'DELETE',
+                    /\/responds_with_json\/leelooId/,
+                    [
+                        200,
+                        '{"Content-Type":"application/json"}',
+                        {"found": true, "_index": "5elements", "_type": "5elements", "_id": "leelooId-U", "_version": 2}
                     ]
             );
 
-            // Create
 
         });
         teardown(function () {
             server.restore();
         });
         test('GET entity 200 method=get', function (done) {
-            form = fixture('Basic', {endpoint: '/responds_with_json'});
+            form = fixture('Basic', {});
             var entityId = 'leelooId';
             form.addEventListener('air-cruddy-response-get', function (event) {
                 var detail = event.detail;
@@ -106,7 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         test('GET entity 404 method=get', function (done) {
-            form = fixture('Basic', {endpoint: '/responds_with_json'});
+            form = fixture('Basic', {});
             var entityId = 'badId';
             form.addEventListener('air-cruddy-error-get', function (event) {
                 var detail = event.detail;
@@ -124,12 +143,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             server.respond();
         });
 
-        test('CREATE entity 201 method=put', function (done) {
-            form = fixture('Basic', {endpoint: '/responds_with_json'});
+        test('UPDATE entity 201 method=put', function (done) {
+            form = fixture('Basic', {});
             var entityId = 'new';
-            form.addEventListener('air-cruddy-error-get', function (event) {
+            form.addEventListener('air-cruddy-response-update', function (event) {
                 var detail = event.detail;
-                var response = detail.error;
+                var response = detail.response;
+                // Detail Status
+                expect(detail.status).to.be.equal(404);
+                // Error
+                expect(response).to.be.ok;
+                expect(response).to.be.an('object');
+                // End
+                done();
+            });
+            form._entityUpdate(entityId, data, entityVersion);
+            server.respond();
+        });
+
+
+        test('CREATE entity 201 method=post', function (done) {
+            form = fixture('Basic', {});
+            var entityId = 'new';
+            form.addEventListener('air-cruddy-response-create', function (event) {
+                var detail = event.detail;
+                var response = detail.response;
                 // Detail Status
                 expect(detail.status).to.be.equal(404);
                 // Error
@@ -139,7 +177,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 // End
                 done();
             });
-            form._entityGet(entityId);
+            form._entityUpdate(entityId, data, entityVersion);
+            server.respond();
+        });
+
+        test('DELETE entity 201 method=put', function (done) {
+            form = fixture('Basic', {});
+            var entityId = 'new';
+            form.addEventListener('air-cruddy-response-delete', function (event) {
+                var detail = event.detail;
+                var response = detail.response;
+                // Detail Status
+                expect(detail.status).to.be.equal(404);
+                // Error
+                expect(response).to.be.ok;
+                expect(response).to.be.an('object');
+                expect(response.message).to.be.equal('The request failed with status code: 404');
+                // End
+                done();
+            });
+            form._entityDelete(entityId);
             server.respond();
         });
     });
