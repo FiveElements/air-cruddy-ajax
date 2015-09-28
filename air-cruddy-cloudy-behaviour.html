@@ -259,7 +259,8 @@
         },
 
         _convertAjaxError: function (event) {
-            console.log('_handleErrorGet detail', event.detail);
+//            console.log('_handleErrorGet event : '+ event);
+//            console.log('_handleErrorGet detail : ', event.detail);
             console.dir(event.detail.error);
             var error = this._convertAjaxContentAsJson(event.detail.error);
             // Status
@@ -386,6 +387,10 @@
         },
 
         _handleErrorGet: function (event) {
+//            console.log('_------------------------------');
+//            console.log('_handleErrorGet for event : ' +  event.detail);
+//            console.dir(event.detail);
+//            console.log('_------------------------------');
             var detail = this._convertAjaxError(event);
             this._onErrorGet(detail);
             // Call register Callback
